@@ -53,7 +53,7 @@ test('Create article', async ({ request }) => {
 
 })
 
-test('Delete article', async ({request}) => {
+test('Create and Delete article', async ({request}) => {
 
   // create an article for deletion
   const tokenResponse = await request.post('/api/users/login', {
@@ -90,6 +90,75 @@ test('Delete article', async ({request}) => {
   // console.log(newArticleResponseJSON);
 
   const deleteArticleResponse = await request.delete(`/api/articles/${slug}`, {
+    headers: {
+      Authorization: `Token ${token}`
+    }  
+  })
+
+  expect(deleteArticleResponse.status()).toEqual(204)
+})
+
+test('Create, Update and Delete article', async ({request}) => {
+
+  // create an article for update
+  const tokenResponse = await request.post('/api/users/login', {
+    data: { "user": { "email": process.env.TEST_USER_EMAIL, "password": process.env.TEST_USER_PASSWORD } }
+  })
+
+  const tokenResponseJSON = await tokenResponse.json();
+  const token = tokenResponseJSON.user.token;
+
+  // console.log(token);
+
+  const articleTitle = faker.lorem.sentence()
+  const newArticleResponse = await request.post('/api/articles', {
+    data: {
+      "article": {
+        "title": articleTitle,
+        "description": faker.lorem.paragraph(),
+        "body": faker.lorem.paragraphs({ min: 1, max: 5 }),
+        "tagList": faker.lorem.words({ min: 1, max: 3 }).split(' ') // tagList expects an array
+      }
+    },
+    headers: {
+      Authorization: `Token ${token}`
+    }
+  })
+
+  expect(newArticleResponse.status()).toEqual(201)
+
+  const newArticleResponseJSON = await newArticleResponse.json()
+  const slugID = newArticleResponseJSON.article.slug
+  const tagList = newArticleResponseJSON.article.tagList
+
+  // expect(newArticleResponseJSON.article.title).toEqual(articleTitle)
+
+  // console.log(newArticleResponseJSON);
+
+  const updateArticleResponse = await request.put(`/api/articles/${slugID}`, {
+    data: {
+      "article": {
+        "slug": slugID,
+        "title": faker.lorem.sentence(),
+        "description": faker.lorem.paragraph(),
+        "body": faker.lorem.paragraphs({ min: 1, max: 5 }),
+        "tagList": tagList.push(faker.lorem.words({ min: 1, max: 3 }).split(' ')) // tagList expects an array
+      }
+    },
+    headers: {
+      Authorization: `Token ${token}`
+    }  
+  })
+
+  expect(updateArticleResponse.status()).toEqual(200)
+
+  const updateArticleResponseJSON = await updateArticleResponse.json()
+  const updatedSlugID = updateArticleResponseJSON.article.slug
+  expect(updatedSlugID).not.toEqual(slugID)
+
+  // delete the article
+
+  const deleteArticleResponse = await request.delete(`/api/articles/${updatedSlugID}`, {
     headers: {
       Authorization: `Token ${token}`
     }  
