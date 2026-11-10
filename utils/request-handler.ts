@@ -54,6 +54,43 @@ export class RequestHandler {
     return responseJSON
   }
 
+  async postRequest(statusCode: number) {
+    const url = this.getUrl()
+    const response = await this.request.post(url, {
+      headers: this.apiHeaders,
+      data: this.apiBody
+    })
+    
+    expect(response.status()).toEqual(statusCode)
+      
+    const responseJSON = await response.json()
+    
+    return responseJSON
+  }
+
+  async putRequest(statusCode: number) {
+    const url = this.getUrl()
+    const response = await this.request.put(url, {
+      headers: this.apiHeaders,
+      data: this.apiBody
+    })
+    
+    expect(response.status()).toEqual(statusCode)
+      
+    const responseJSON = await response.json()
+    
+    return responseJSON
+  }
+
+  async deleteRequest(statusCode: number) {
+    const url = this.getUrl()
+    const response = await this.request.delete(url, {
+      headers: this.apiHeaders
+    })
+    
+    expect(response.status()).toEqual(statusCode)
+  }
+
   private getUrl() {
     const url = new URL(`${this.baseUrl ?? this.defaultBaseUrl}${this.apiPath}`)
     for (const [key, value] of Object.entries(this.queryParams)){
