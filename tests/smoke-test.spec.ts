@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { test } from '../utils/fixtures';
-import { expect } from '@playwright/test'
-
+import { expect } from '../utils/custom-expect'
 
 let authToken: string
 
@@ -21,6 +20,7 @@ test.beforeAll('Run before all tests', async ({ api }) => {
 
 })
 
+
 test('Get articles', async ({ api }) => {
 
   const response = await api
@@ -39,7 +39,7 @@ test('Get tags', async ({ api }) => {
     .getRequest(200)
 
   // console.log(responseJSON);
-  expect(response.tags[0]).toEqual('Test');
+  expect(response.tags[0]).shouldEqual('Test');
   expect(response.tags.length <= 10)
 });
 
@@ -64,7 +64,7 @@ test('Create and Delete article', async ({ api }) => {
     .headers({ Authorization: authToken })
     .postRequest(201)
 
-  expect(newArticleResponse.article.title).toEqual(articleTitle)
+  expect(newArticleResponse.article.title).shouldEqual(articleTitle)
   const slug = newArticleResponse.article.slug
 
   // delete the article
@@ -110,7 +110,7 @@ test('Create, Update and Delete article', async ({ api }) => {
     .putRequest(200)
 
   const updatedSlugID = updateArticleResponse.article.slug
-  expect(updatedSlugID).not.toEqual(slugID)
+  expect(updatedSlugID).not.shouldEqual(slugID)
 
   // delete the article
   await api
