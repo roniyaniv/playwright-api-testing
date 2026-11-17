@@ -7,13 +7,13 @@ export class RequestHandler {
   private request: APIRequestContext
   private logger: APILogger
   private baseUrl: string | undefined
-  private defaultBaseUrl: string
+  private defaultBaseUrl: string | undefined
   private apiPath: string = ''
   private queryParams: object = {}
   private apiHeaders: Record<string, string> = {}
   private apiBody: object = {}
 
-  constructor(request: APIRequestContext, apiBaseUrl: string, logger: APILogger) {
+  constructor(request: APIRequestContext, apiBaseUrl: string | undefined, logger: APILogger) {
     this.request = request
     this.defaultBaseUrl = apiBaseUrl
     this.logger = logger
@@ -52,6 +52,8 @@ export class RequestHandler {
       headers: this.apiHeaders
     })
     
+    this.cleanupFields()
+
     const actualStatus = response.status()
     const responseJSON = await response.json()
 
@@ -70,6 +72,8 @@ export class RequestHandler {
       data: this.apiBody
     })
    
+    this.cleanupFields()
+
     const actualStatus = response.status()
     const responseJSON = await response.json()
 
@@ -88,6 +92,8 @@ export class RequestHandler {
       data: this.apiBody
     })
     
+    this.cleanupFields()
+
     const actualStatus = response.status()
     const responseJSON = await response.json()
 
@@ -105,6 +111,8 @@ export class RequestHandler {
       headers: this.apiHeaders
     })
     
+    this.cleanupFields()
+
     const actualStatus = response.status()
 
     this.logger.logResponse(actualStatus)
@@ -126,5 +134,13 @@ export class RequestHandler {
       Error.captureStackTrace(error, callingMethod)
       throw error
     }
+  }
+
+  private cleanupFields() {
+    this.apiBody = {}
+    this.apiHeaders = {}
+    this.baseUrl = undefined
+    this.apiPath = ''
+    this.queryParams = {}
   }
 }

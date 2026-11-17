@@ -1,22 +1,15 @@
 import { faker } from '@faker-js/faker';
 import { test } from '../utils/fixtures';
 import { expect } from '../utils/custom-expect'
+import { createToken } from '../helpers/createToken';
 
 let authToken: string
 
-test.beforeAll('Run before all tests', async ({ api }) => {
+test.beforeAll('Run before all tests', async ({ config }) => {
 
   // Create an authToken
-
-  const tokenResponse = await api
-    .path('/users/login')
-    .body({
-      "user": { "email": process.env.TEST_USER_EMAIL, "password": process.env.TEST_USER_PASSWORD }
-    })
-    .postRequest(200)
-
-  // console.log(tokenResponse);
-  authToken = `Token ${tokenResponse.user.token}`;
+  // authToken = await createToken(api, config.userEmail, config.userPassword);
+  authToken = await createToken(config.userEmail, config.userPassword);
 
 })
 
@@ -28,8 +21,7 @@ test('Get articles', async ({ api }) => {
     .params({ limit: 10, offset: 0 })
     .getRequest(200)
 
-  expect(response.articles.length).toBeLessThanOrEqual(10);
-
+  expect(response.articles.length).shouldBeLessThanOrEqual(10);
   // console.log(response);
 })
 
