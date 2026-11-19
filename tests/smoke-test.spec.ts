@@ -1,17 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { test } from '../utils/fixtures';
 import { expect } from '../utils/custom-expect'
-import { createToken } from '../helpers/createToken';
-
-let authToken: string
-
-test.beforeAll('Run before all tests', async ({ config }) => {
-
-  // Create an authToken
-  // authToken = await createToken(api, config.userEmail, config.userPassword);
-  authToken = await createToken(config.userEmail, config.userPassword);
-
-})
 
 
 test('Get articles', async ({ api }) => {
@@ -53,7 +42,6 @@ test('Create and Delete article', async ({ api }) => {
         "tagList": faker.lorem.words({ min: 1, max: 3 }).split(' ') // tagList expects an array
       }
     })
-    .headers({ Authorization: authToken })
     .postRequest(201)
 
   expect(newArticleResponse.article.title).shouldEqual(articleTitle)
@@ -62,7 +50,6 @@ test('Create and Delete article', async ({ api }) => {
   // delete the article
   await api
     .path(`/articles/${slug}`)
-    .headers({ Authorization: authToken })
     .deleteRequest(204)
 
 })
@@ -81,7 +68,6 @@ test('Create, Update and Delete article', async ({ api }) => {
         "tagList": faker.lorem.words({ min: 1, max: 3 }).split(' ') // tagList expects an array
       }
     })
-    .headers({ Authorization: authToken })
     .postRequest(201)
 
   const slugID = newArticleResponse.article.slug
@@ -98,7 +84,6 @@ test('Create, Update and Delete article', async ({ api }) => {
         "tagList": tagList.push(faker.lorem.words({ min: 1, max: 3 }).split(' ')) // tagList expects an array
       }
     })
-    .headers({ Authorization: authToken })
     .putRequest(200)
 
   const updatedSlugID = updateArticleResponse.article.slug
@@ -107,7 +92,6 @@ test('Create, Update and Delete article', async ({ api }) => {
   // delete the article
   await api
     .path(`/articles/${updatedSlugID}`)
-    .headers({ Authorization: authToken })
     .deleteRequest(204)
 
 })
